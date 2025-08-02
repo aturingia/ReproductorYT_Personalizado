@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Reproductor de YouTube Personalizado</title>
+  </head>
+<body>
+
+    <h1>Mí Reproductor YT 🎵</h1><br><br>
+
+    <div class="youtube">
+      <input type="text" id="playlistURL" class="insert-Area" placeholder="Introducir URL">
+      <button class="icon-button-playlist" onclick="loadPlaylist()">🎧</button>
+      <audio id="audio" preload="auto" loop>
+        <source src="silence.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+    </div>
+  
+    <div class="playerList-container">
+        <div id="playerList"></div>
+    </div>
+  
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Buscar video...">
+        <button id="searchButton" class="icon-button" title="Buscar por teclado">🔍</button>
+        <button id="voiceSearchButton" class="icon-button" title="Buscar por voz">🎤</button>
+    </div>
+  
+    <div class="player-container">
+        <div id="player"></div>
+    </div>
+    <div id="results-container"></div>
+  
+  
+  <script src="main.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
