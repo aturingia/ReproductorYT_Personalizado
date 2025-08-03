@@ -1,146 +1,340 @@
-// ============== CONFIGURACIÓN ==============
-        // ¡¡¡REEMPLAZA ESTO CON TU PROPIA CLAVE DE API!!!
-        const API_KEY = 'AIzaSyBSMTFseDyvuoFckww1F28qBPHR9tqt_GA';
-        // ===========================================
+// Variables globales
+let player;
+let currentVideoId = '';
+let playlist = [];
+let currentPlaylistIndex = -1;
+let searchResults = [];
 
-        // 1. Carga la API del IFrame Player de YouTube de forma asíncrona.
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        let player;
-        // 2. Esta función se ejecuta cuando la API está lista.
-        function onYouTubeIframeAPIReady() {
-            // Inicializa el reproductor aquí si quieres que un video aparezca al cargar.
-            // Por ahora lo dejamos vacío para que el usuario busque primero.
+// Cargar la API de YouTube
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '500',
+        width: '100%',
+        playerVars: {
+            'autoplay': 1,
+            'controls': 1,
+            'rel': 0,
+            'showinfo': 0,
+            'modestbranding': 1
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
         }
+    });
+}
 
-        // 3. Referencias a los elementos del DOM
-        const searchInput = document.getElementById('searchInput');
-        const searchButton = document.getElementById('searchButton');
-        const voiceSearchButton = document.getElementById('voiceSearchButton');
-        const resultsContainer = document.getElementById('results-container');
-        
-        // 4. Lógica de Búsqueda por Teclado
-        searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                performSearch();
-            }
+// Cuando el reproductor está listo
+function onPlayerReady(event) {
+    console.log('Reproductor listo');
+    // Cargar playlist desde localStorage si existe
+    loadPlaylistFromStorage();
+}
+
+// Cambios en el estado del reproductor
+function onPlayerStateChange(event) {
+    // Cuando el video termina, reproducir el siguiente en la playlist
+    if (event.data === YT.PlayerState.ENDED && playlist.length > 0) {
+        playNextVideo();
+    }
+}
+
+// Buscar videos
+function searchVideos() {
+    const searchInput = document.getElementById('search-input');
+    const query = searchInput.value.trim();
+    
+    if (query === '') return;
+    
+    // Usar la API de YouTube Data v3 (necesitarás una clave API)
+    // Nota: En una aplicación real, esto debería hacerse desde el backend por seguridad
+    const API_KEY = 'AIzaSyBSMTFseDyvuoFckww1F28qBPHR9tqt_GA'; // Reemplaza con tu API key
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}&type=video`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            searchResults = data.items;
+            displaySearchResults(searchResults);
+        })
+        .catch(error => {
+            console.error('Error al buscar videos:', error);
+            alert('Error al buscar videos. Por favor intenta nuevamente.');
         });
+}
 
-        function performSearch() {
-            const query = searchInput.value;
-            if (query) {
-                searchVideos(query);
+// Mostrar resultados de búsqueda
+function displaySearchResults(results) {
+    const resultsContainer = document.getElementById('search-results');
+    resultsContainer.innerHTML = '';
+    
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<p>No se encontraron resultados.</p>';
+        return;
+    }
+    
+    results.forEach((item, index) => {
+        const videoId = item.id.videoId;
+        const thumbnail = item.snippet.thumbnails.medium.url;
+        const title = item.snippet.title;
+        const channel = item.snippet.channelTitle;
+        
+        const resultElement = document.createElement('div');
+        resultElement.className = 'search-result';
+        resultElement.innerHTML = `
+            <img src="${thumbnail}" alt="${title}">
+            <div class="search-result-info">
+                <div class="search-result-title">${title}</div>
+                <div class="search-result-channel">${channel}</div>
+            </div>
+        `;
+        
+        resultElement.addEventListener('click', () => {
+            playVideo(videoId);
+        });
+        
+        resultsContainer.appendChild(resultElement);
+    });
+}
+
+// Reproducir un video
+function playVideo(videoId) {
+    if (!player) return;
+    
+    currentVideoId = videoId;
+    player.loadVideoById(videoId);
+    
+    // Resaltar el video actual en la playlist si está allí
+    highlightCurrentVideoInPlaylist(videoId);
+}
+
+// Añadir video a la playlist
+function addToPlaylist(videoId, title, thumbnail) {
+    // Verificar si el video ya está en la playlist
+    if (playlist.some(item => item.id === videoId)) {
+        alert('Este video ya está en la playlist.');
+        return;
+    }
+    
+    playlist.push({
+        id: videoId,
+        title: title,
+        thumbnail: thumbnail
+    });
+    
+    updatePlaylistDisplay();
+    savePlaylistToStorage();
+    
+    // Si es el primer video de la playlist, reproducirlo
+    if (playlist.length === 1) {
+        playVideo(videoId);
+        currentPlaylistIndex = 0;
+    }
+}
+
+// Actualizar la visualización de la playlist
+function updatePlaylistDisplay() {
+    const playlistElement = document.getElementById('playlist');
+    playlistElement.innerHTML = '';
+    
+    playlist.forEach((item, index) => {
+        const li = document.createElement('li');
+        if (item.id === currentVideoId) {
+            li.classList.add('active');
+        }
+        
+        li.innerHTML = `
+            <span>${index + 1}. ${item.title}</span>
+            <button class="remove-btn" data-index="${index}"><i class="fas fa-times"></i></button>
+        `;
+        
+        li.addEventListener('click', () => {
+            playVideo(item.id);
+            currentPlaylistIndex = index;
+        });
+        
+        playlistElement.appendChild(li);
+    });
+    
+    // Agregar eventos a los botones de eliminar
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const index = parseInt(btn.getAttribute('data-index'));
+            removeFromPlaylist(index);
+        });
+    });
+}
+
+// Eliminar video de la playlist
+function removeFromPlaylist(index) {
+    if (index >= 0 && index < playlist.length) {
+        // Si estamos eliminando el video actual, reproducir el siguiente si existe
+        if (playlist[index].id === currentVideoId) {
+            playlist.splice(index, 1);
+            if (playlist.length > 0) {
+                const newIndex = index < playlist.length ? index : 0;
+                playVideo(playlist[newIndex].id);
+                currentPlaylistIndex = newIndex;
+            } else {
+                currentVideoId = '';
+                currentPlaylistIndex = -1;
+                player.stopVideo();
+            }
+        } else {
+            playlist.splice(index, 1);
+            // Ajustar el índice actual si es necesario
+            if (currentPlaylistIndex > index) {
+                currentPlaylistIndex--;
             }
         }
         
-        async function searchVideos(query) {
-            resultsContainer.innerHTML = '<p>Buscando...</p>';
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&key=${API_KEY}&type=video&maxResults=10`;
+        updatePlaylistDisplay();
+        savePlaylistToStorage();
+    }
+}
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                displayResults(data.items);
-            } catch (error) {
-                console.error('Error al buscar videos:', error);
-                resultsContainer.innerHTML = '<p>Error al cargar los resultados. Verifica la clave de API.</p>';
+// Reproducir siguiente video en la playlist
+function playNextVideo() {
+    if (playlist.length === 0) return;
+    
+    currentPlaylistIndex = (currentPlaylistIndex + 1) % playlist.length;
+    playVideo(playlist[currentPlaylistIndex].id);
+}
+
+// Resaltar video actual en la playlist
+function highlightCurrentVideoInPlaylist(videoId) {
+    const playlistItems = document.querySelectorAll('#playlist li');
+    playlistItems.forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    playlist.forEach((item, index) => {
+        if (item.id === videoId) {
+            currentPlaylistIndex = index;
+            if (playlistItems[index]) {
+                playlistItems[index].classList.add('active');
             }
         }
+    });
+}
 
-        function displayResults(videos) {
-            resultsContainer.innerHTML = ''; // Limpiar resultados anteriores
-            if (!videos || videos.length === 0) {
-                resultsContainer.innerHTML = '<p>No se encontraron videos.</p>';
-                return;
-            }
+// Guardar playlist en localStorage
+function savePlaylistToStorage() {
+    localStorage.setItem('youtubePlaylist', JSON.stringify(playlist));
+    localStorage.setItem('youtubeCurrentVideo', currentVideoId);
+    localStorage.setItem('youtubeCurrentIndex', currentPlaylistIndex.toString());
+}
 
-            videos.forEach(video => {
-                const videoItem = document.createElement('div');
-                videoItem.classList.add('video-item');
-                videoItem.dataset.videoId = video.id.videoId; // Guardar el ID del video
-                
-                videoItem.innerHTML = `
-                    <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}">
-                    <p>${video.snippet.title}</p>
-                `;
+// Cargar playlist desde localStorage
+function loadPlaylistFromStorage() {
+    const savedPlaylist = localStorage.getItem('youtubePlaylist');
+    const savedVideo = localStorage.getItem('youtubeCurrentVideo');
+    const savedIndex = localStorage.getItem('youtubeCurrentIndex');
+    
+    if (savedPlaylist) {
+        playlist = JSON.parse(savedPlaylist);
+        updatePlaylistDisplay();
+    }
+    
+    if (savedVideo && savedVideo !== '') {
+        currentVideoId = savedVideo;
+        currentPlaylistIndex = savedIndex ? parseInt(savedIndex) : -1;
+        playVideo(currentVideoId);
+    }
+}
 
-                videoItem.addEventListener('click', () => {
-                    playVideo(video.id.videoId);
-                });
+// Búsqueda por voz
+function startVoiceSearch() {
+    const voiceStatus = document.getElementById('voice-status');
+    voiceStatus.style.display = 'block';
+    
+    // Verificar si el navegador soporta reconocimiento de voz
+    if (!('webkitSpeechRecognition' in window)) {
+        alert('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome.');
+        voiceStatus.style.display = 'none';
+        return;
+    }
+    
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.interimResults = false;
+    
+    recognition.onstart = function() {
+        console.log('Escuchando...');
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('search-input').value = transcript;
+        voiceStatus.style.display = 'none';
+        searchVideos();
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Error en reconocimiento de voz:', event.error);
+        voiceStatus.style.display = 'none';
+        alert('Error en reconocimiento de voz: ' + event.error);
+    };
+    
+    recognition.onend = function() {
+        voiceStatus.style.display = 'none';
+    };
+    
+    recognition.start();
+}
 
-                resultsContainer.appendChild(videoItem);
-            });
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Buscar al hacer clic en el botón
+    document.getElementById('search-btn').addEventListener('click', searchVideos);
+    
+    // Buscar al presionar Enter
+    document.getElementById('search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchVideos();
         }
-
-        function playVideo(videoId) {
-            if (player) {
-                player.loadVideoById(videoId);
-            } else {
-                player = new YT.Player('player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    playerVars: {
-                        'playsinline': 1,
-                        'autoplay': 1, // Autoplay del video seleccionado
-                    },
-                    events: {
-                        'onReady': (event) => event.target.playVideo()
-                    }
-                });
-            }
-             // Scroll hacia el reproductor para mejor UX
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    // Búsqueda por voz
+    document.getElementById('voice-btn').addEventListener('click', startVoiceSearch);
+    
+    // Añadir video actual a la playlist
+    document.getElementById('add-playlist-btn').addEventListener('click', function() {
+        if (!currentVideoId) {
+            alert('No hay ningún video reproduciéndose.');
+            return;
         }
-
-
-        // 5. Lógica de Búsqueda por Voz (Web Speech API)
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'es-ES'; // Configurar idioma
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            voiceSearchButton.addEventListener('click', () => {
-                voiceSearchButton.textContent = '...';
-                voiceSearchButton.disabled = true;
-                recognition.start();
-            });
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                searchInput.value = transcript;
-                performSearch(); // Realizar la búsqueda con el texto reconocido
-            };
-            
-            recognition.onerror = (event) => {
-                console.error("Error en reconocimiento de voz:", event.error);
-                 voiceSearchButton.textContent = '🎤';
-                voiceSearchButton.disabled = false;
-            }
-
-            recognition.onend = () => {
-                voiceSearchButton.textContent = '🎤';
-                voiceSearchButton.disabled = false;
-            };
-
+        
+        // Buscar el título y thumbnail del video actual en los resultados de búsqueda
+        const currentVideo = searchResults.find(item => item.id.videoId === currentVideoId);
+        if (currentVideo) {
+            addToPlaylist(
+                currentVideoId,
+                currentVideo.snippet.title,
+                currentVideo.snippet.thumbnails.medium.url
+            );
         } else {
-            console.warn("La API de reconocimiento de voz no es compatible con este navegador.");
-            voiceSearchButton.style.display = 'none'; // Ocultar el botón si no es compatible
+            // Si no está en los resultados, usar datos básicos
+            addToPlaylist(currentVideoId, `Video ID: ${currentVideoId}`, '');
         }
+    });
+    
+    // Limpiar playlist
+    document.getElementById('clear-playlist-btn').addEventListener('click', function() {
+        if (confirm('¿Estás seguro de que quieres limpiar toda la playlist?')) {
+            playlist = [];
+            currentVideoId = '';
+            currentPlaylistIndex = -1;
+            updatePlaylistDisplay();
+            savePlaylistToStorage();
+            player.stopVideo();
+        }
+    });
+});
 
-//================ Youtube-Player-Playlist =================
-
-// JavaScript
-function loadPlaylist() {
-    var playlistURL = document.getElementById('playlistURL').value;
-    var playlistID = playlistURL.split('list=')[1];
-
-    var playerDiv = document.getElementById('playerList');
-   playerDiv.innerHTML = `<iframe max-width="800" height="100%" src="https://www.youtube.com/embed?listType=playlist&list=${playlistID}&autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-};
+//================ Dark - Mode ======================
+function myFunction() {
+   var element = document.body;
+   element.classList.toggle("dark-mode");
+}
