@@ -3,39 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de YouTube Avanzado</title>
     <link rel="stylesheet" href="styles.css">
-    <title>Reproductor de YouTube Personalizado</title>
-  </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
 <body>
+    <div class="container">
+        <h1>Reproductor de YouTube</h1>
+        
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar videos..." autocomplete="off">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+            <button id="voice-btn"><i class="fas fa-microphone"></i></button>
+            <button id="dark-btn" onclick="myFunction()"><i class="fas fa-moon"></i></button>
 
-    <h1>Mí Reproductor YT 🎵</h1><br><br>
-
-    <div class="youtube">
-      <input type="text" id="playlistURL" class="insert-Area" placeholder="Introducir URL">
-      <button class="icon-button-playlist" onclick="loadPlaylist()">🎧</button>
-      <audio id="audio" preload="auto" loop>
-        <source src="silence.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
+        </div>
+        
+        <div class="player-container">
+            <div id="player"></div>
+        </div>
+        
+        <div class="playlist-container">
+            <h2>Playlist</h2>
+            <div class="playlist-controls">
+                <button id="add-playlist-btn">Añadir a Playlist</button>
+                <button id="clear-playlist-btn">Limpiar Playlist</button>
+            </div>
+            <ul id="playlist"></ul>
+        </div>
+        
+        <div class="results-container">
+            <h2>Resultados de Búsqueda</h2>
+            <div id="search-results"></div>
+        </div>
     </div>
-  
-    <div class="playerList-container">
-        <div id="playerList"></div>
+    
+    <div class="voice-status" id="voice-status">
+        <i class="fas fa-microphone"></i> Escuchando...
     </div>
-  
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Buscar video...">
-        <button id="searchButton" class="icon-button" title="Buscar por teclado">🔍</button>
-        <button id="voiceSearchButton" class="icon-button" title="Buscar por voz">🎤</button>
-    </div>
-  
-    <div class="player-container">
-        <div id="player"></div>
-    </div>
-    <div id="results-container"></div>
-  
-  
-  <script src="main.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="main.js"></script>
 </body>
 </html>
