@@ -1,154 +1,239 @@
- /* CSS para los estilos */
-        :root {
-            --primary-color: #282c34;
-            --secondary-color: #ffffff;
-            --accent-color: #ff0000;
-            --text-color: #f0f0f0;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--primary-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+body {
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+}
 
-        h1 {
-            color: var(--accent-color);
-        }
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-        .search-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 600px;
-        }
+h1, h2 {
+    color: #ff0000;
+    margin-bottom: 20px;
+    text-align: center;
+}
 
-        #searchInput {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid var(--accent-color);
-            border-radius: 5px;
-            background-color: #333;
-            color: var(--text-color);
-            font-size: 16px;
-        }
-        .youtube {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 600px;
-        }
+.search-container {
+    display: flex;
+    margin-bottom: 20px;
+    justify-content: center;
+}
 
-        #playlistURL{
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid var(--accent-color);
-            border-radius: 5px;
-            background-color: #333;
-            color: var(--text-color);
-            font-size: 16px;
-        }
-        .icon-button-playlist{
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: var(--accent-color);
-            color: var(--secondary-color);
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-         .icon-button-playlist:hover {
-            opacity: 0.8;
-        }
+#search-input {
+    width: 60%;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 25px 0 0 25px;
+    outline: none;
+    transition: border 0.3s;
+}
 
-        .icon-button {
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            background-color: var(--accent-color);
-            color: var(--secondary-color);
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .icon-button:hover {
-            opacity: 0.8;
-        }
+#search-input:focus {
+    border-color: #ff0000;
+}
 
-        .playerList-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            background-color: #000;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+#search-btn, #voice-btn, #dark-btn {
+    padding: 12px 20px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
 
-        #playerList {
-            width: 100%;
-            height: 100%;
-        }
+#search-btn {
+    border-radius: 0 25px 25px 0;
+}
 
-        .player-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-            background-color: #000;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+#voice-btn {
+    border-radius: 25px;
+    margin-left: 10px;
+}
 
-        #player {
-            width: 100%;
-            height: 100%;
-        }
+#dark-btn {
+    border-radius: 25px;
+    margin-left: 10px;
+    }
 
-        #results-container {
-            width: 100%;
-            max-width: 800px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
+#search-btn:hover, #voice-btn:hover {
+    background-color: #cc0000;
+}
 
-        .video-item {
-            background-color: #333;
-            border-radius: 5px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
+.player-container {
+    margin-bottom: 30px;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        .video-item:hover {
-            transform: scale(1.05);
-        }
+#player {
+    width: 100%;
+    height: 500px;
+}
 
-        .video-item img {
-            width: 100%;
-            display: block;
-        }
+.playlist-container, .results-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-        .video-item p {
-            padding: 8px;
-            margin: 0;
-            font-size: 14px;
-            height: 60px; /* Limita el espacio para el título */
-            overflow: hidden;
-        }
+.playlist-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.dark-mode {
+  background-color: #282c34;
+  color: rgb(0,0,0);
+}
+
+#add-playlist-btn, #clear-playlist-btn {
+    padding: 8px 15px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#add-playlist-btn:hover, #clear-playlist-btn:hover {
+    background-color: #cc0000;
+}
+
+#playlist {
+    list-style-type: none;
+}
+
+#playlist li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#playlist li:hover {
+    background-color: #f5f5f5;
+}
+
+#playlist li.active {
+    background-color: #ffecec;
+    font-weight: bold;
+}
+
+#playlist li .remove-btn {
+    color: #ff0000;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-result {
+    display: flex;
+    margin-bottom: 15px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.search-result:hover {
+    background-color: #f5f5f5;
+}
+
+.search-result img {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.search-result-channel {
+    color: #666;
+    font-size: 14px;
+}
+
+.voice-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ff0000;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    #search-input {
+        width: 100%;
+        border-radius: 25px;
+        margin-bottom: 10px;
+    }
+    
+    #search-btn {
+        border-radius: 25px;
+        width: 100%;
+    }
+    
+    #voice-btn {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+  
+   #dark-btn {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    
+  
+    #player {
+        height: 300px;
+    }
+}
+
