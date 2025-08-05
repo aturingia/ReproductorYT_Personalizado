@@ -49,7 +49,7 @@ function searchVideos() {
     // Usar la API de YouTube Data v3 (necesitarás una clave API)
     // Nota: En una aplicación real, esto debería hacerse desde el backend por seguridad
     const API_KEY = 'AIzaSyBSMTFseDyvuoFckww1F28qBPHR9tqt_GA'; // Reemplaza con tu API key
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}&type=video`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=300&q=${encodeURIComponent(query)}&key=${API_KEY}&type=video`;
     
     fetch(url)
         .then(response => response.json())
