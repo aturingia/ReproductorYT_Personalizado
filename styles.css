@@ -2,11 +2,14 @@
     --primary-color: #ff0000;
     --primary-dark: #cc0000;
     --secondary-color: #282828;
-    --light-gray: #282c34;
+    --light-gray: #f1f1f1;
     --medium-gray: #ddd;
     --dark-gray: #666;
     --text-color: #333;
     --white: #ffffff;
+    --success-color: #4CAF50;
+    --warning-color: #ff9800;
+    --info-color: #2196F3;
 }
 
 * {
@@ -92,6 +95,11 @@ button i {
     font-size: 14px;
 }
 
+.button-group button {
+    padding: 8px 15px;
+    font-size: 14px;
+}
+
 .player-container {
     margin-bottom: 30px;
     background-color: var(--secondary-color);
@@ -133,16 +141,6 @@ button i {
     flex-wrap: wrap;
 }
 
-.button-group button {
-    padding: 8px 15px;
-    font-size: 14px;
-}
-
-.light-mode {
-  background-color: white;
-  color: black;
-}
-
 #playlist {
     list-style-type: none;
     max-height: 400px;
@@ -167,7 +165,6 @@ button i {
 
 #playlist li:hover {
     background-color: var(--light-gray);
-    color: var(--medium-gray); 
 }
 
 #playlist li.active {
@@ -265,11 +262,7 @@ button i {
     margin-bottom: 5px;
 }
 
-.search-result-duration {
-    font-size: 12px;
-    color: var(--dark-gray);
-}
-
+/* Modales */
 .modal {
     display: none;
     position: fixed;
@@ -288,8 +281,10 @@ button i {
     padding: 25px;
     border-radius: 10px;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .close-btn {
@@ -306,19 +301,150 @@ button i {
     color: var(--primary-color);
 }
 
-#playlist-name {
-    width: 100%;
-    padding: 10px;
+/* Export Modal */
+.export-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
     margin-bottom: 20px;
-    border: 1px solid var(--medium-gray);
-    border-radius: 5px;
 }
 
-#confirm-save {
-    width: 100%;
+.export-options button {
+    background-color: var(--info-color);
     justify-content: center;
 }
 
+.export-options button:hover {
+    background-color: #0b7dda;
+}
+
+#export-share {
+    background-color: var(--success-color);
+}
+
+#export-share:hover {
+    background-color: #3d8b3d;
+}
+
+.export-preview {
+    background-color: var(--light-gray);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#export-preview-content {
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 10px;
+    background-color: var(--white);
+    border: 1px solid var(--medium-gray);
+    border-radius: 3px;
+}
+
+/* Import Modal */
+.import-options {
+    margin-bottom: 20px;
+}
+
+.import-method {
+    display: none;
+}
+
+.import-method.active {
+    display: block;
+}
+
+.import-method h4 {
+    margin-bottom: 10px;
+    color: var(--dark-gray);
+}
+
+#file-upload {
+    display: none;
+}
+
+.file-drop-area {
+    border: 2px dashed var(--medium-gray);
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 20px;
+}
+
+.file-drop-area:hover, .file-drop-area.dragover {
+    border-color: var(--primary-color);
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.file-drop-area i {
+    font-size: 48px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.file-info {
+    font-size: 12px;
+    color: var(--dark-gray);
+    margin-top: 10px;
+}
+
+#import-text {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 5px;
+    resize: vertical;
+    margin-bottom: 20px;
+    font-family: monospace;
+}
+
+#import-url {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.method-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.method-tab {
+    flex: 1;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    border-radius: 20px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.method-tab.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+#confirm-import {
+    width: 100%;
+    background-color: var(--success-color);
+    justify-content: center;
+}
+
+#confirm-import:hover {
+    background-color: #3d8b3d;
+}
+
+/* Playlists guardadas */
 .saved-playlist {
     padding: 10px;
     border-bottom: 1px solid var(--medium-gray);
@@ -337,6 +463,18 @@ button i {
 .saved-playlist p {
     color: var(--dark-gray);
     font-size: 14px;
+}
+
+.saved-playlist-actions {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.saved-playlist-actions button {
+    padding: 3px 8px;
+    font-size: 12px;
+    border-radius: 3px;
 }
 
 .voice-status {
@@ -385,5 +523,9 @@ button i {
         flex: 1;
         justify-content: center;
     }
+    
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
 }
-
